@@ -1,0 +1,14 @@
+pandas
+numpy
+scikit-learn
+Pillow
+ImageHash
+plotly
+pandarallel
+pyarrow
+ipykernel
+tqdm
+opencv-python
+matplotlib
+ipywidgets
+nbformat

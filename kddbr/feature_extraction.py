@@ -32,10 +32,6 @@ def add_lags(
         Xy = Xy.join(diff_feats, rsuffix=f'_diff_{i}')
         Xy = Xy.join(leap_diff_feats, rsuffix=f'_leap_diff_{i}')
 
-    Xy['start_of_sequence'] = Xy['order'] <= n_lags
-    Xy['end_of_sequence'] = Xy.groupby('sequence').apply(lambda df: df['order'] >= df['order'].max() - n_lags).droplevel(0)
-    Xy['percent_of_sequence'] = Xy.groupby('sequence').apply(lambda df: df['order'] / df['order'].max()).droplevel(0)
-
     return Xy.fillna(0.0)
 
 class ImageFeatureExtractor:
@@ -108,7 +104,6 @@ class ImageFeatureExtractor:
         c_mean = np.mean(centroids, axis=0)
         
         feats = {
-            'diffs': diffs, 
             'east_mean': mean[0], 'east_median': median[0], 'east_std': std[0],
             'north_mean': mean[1], 'north_median': median[1], 'north_std': std[1],
             'centroid_east': 60 - c_mean[0], 'centroid_north': 60 - c_mean[1], 'n_matches': np.sum(st),
@@ -173,7 +168,6 @@ class ImageFeatureExtractor:
         c_mean = np.mean(centroids, axis=0)
 
         feats = {
-            'diffs_sift': diffs, 
             'east_mean_sift': mean[0], 'east_median_sift': median[0], 'east_std_sift': std[0],
             'north_mean_sift': mean[1], 'north_median_sift': median[1], 'north_std_sift': std[1],
             'centroid_east_sift': 60 - c_mean[0], 'centroid_north_sift': 60 - c_mean[1],
@@ -185,7 +179,7 @@ class ImageFeatureExtractor:
     def get_features_from_row(self, row):
         base_dir = self.test_dir if pd.isna(row['North']) else self.train_dir
         
-        img1, img2 = read_before_and_after(str(base_dir / row['Filename']))
+        img1, img2 = read_before_and_after(str(base_dir / row.name))
 
         sift_features = self._get_sift_features(img1, img2)
         lk_features = self._get_lk_features(img1, img2)

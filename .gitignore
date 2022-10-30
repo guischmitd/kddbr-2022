@@ -133,3 +133,5 @@ dmypy.json
 *.csv
 *.jpg
 *.jpeg
+*.pkl
+*.joblib

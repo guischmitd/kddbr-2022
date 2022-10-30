@@ -12,3 +12,5 @@ opencv-python
 matplotlib
 ipywidgets
 nbformat
+lightgbm
+nb-clean

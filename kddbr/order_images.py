@@ -23,6 +23,9 @@ def build_link_dataframe(_df, hash_size=16):
     pandarallel.initialize(progress_bar=True)
 
     df = _df.copy()
+    if df.index.name == 'Filename':
+        df = df.reset_index()
+        
     hashes = df.parallel_apply(partial(get_hash, hash_size=hash_size), axis=1)
     
     df = df.join(hashes).reset_index()
@@ -61,7 +64,7 @@ def build_sequences(link_df):
     return sequences
 
 
-def evaluate_sequences(sequences, df, plot=True):
+def evaluate_sequences(sequences, _df, plot=True):
     flattened = []
     seq_index = []
 
@@ -71,6 +74,10 @@ def evaluate_sequences(sequences, df, plot=True):
             flattened.extend(seq)
             seq_index.extend([i] * len(seq))
             i += 1
+
+    df = _df.copy()
+    if df.index.name == 'Filename':
+        df = df.reset_index()
 
     print(len(flattened), len(seq_index), pd.Series(flattened).is_unique, max(seq_index))
 
@@ -90,10 +97,10 @@ def evaluate_sequences(sequences, df, plot=True):
             height=720)
         fig.show()
 
-    return ordered
+    return ordered.set_index('Filename')
 
 
-def preprocess_df(df, hash_size=16, plot=False):
+def order_from_df(df, hash_size=16, plot=False):
     links = build_link_dataframe(df, hash_size=hash_size)
 
     seqs = build_sequences(links)
@@ -103,7 +110,7 @@ def preprocess_df(df, hash_size=16, plot=False):
 
 def main(input_path, output_path, hash_size, plot):
     df = pd.read_csv(input_path)
-    ordered = preprocess_df(df, hash_size=hash_size, plot=plot)
+    ordered = order_from_df(df, hash_size=hash_size, plot=plot)
 
     ordered.to_csv(output_path)
 
